@@ -7,8 +7,20 @@ import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+import { useEffect, useState } from "react";
+
 export const Heading = () => {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: convexLoading } = useConvexAuth();
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimedOut(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const isLoading = convexLoading && !timedOut;
   return (
     <div className="max-w-3xl space-y-4 text-center">
       <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">

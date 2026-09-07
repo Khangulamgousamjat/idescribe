@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useConvexAuth } from "convex/react";
@@ -14,7 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 
 export const Navbar = () => {
-  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading: convexLoading } = useConvexAuth();
+  const [timedOut, setTimedOut] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimedOut(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const isLoading = convexLoading && !timedOut;
   const scrolled = useScrollTop(10);
   return (
     <div
