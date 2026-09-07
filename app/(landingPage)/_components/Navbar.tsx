@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useConvexAuth } from "convex/react";
-import { SignInButton, UserButton } from "@clerk/nextjs";
+import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
 
 import { useScrollTop } from "@/hook/useScrollTop";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import { Spinner } from "@/components/spinner";
 
 export const Navbar = () => {
   const { isAuthenticated, isLoading: convexLoading } = useConvexAuth();
+  const { isSignedIn, isLoaded: clerkLoaded } = useAuth();
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -24,8 +25,10 @@ export const Navbar = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const isLoading = convexLoading && !timedOut;
+  const isLoading = convexLoading && !clerkLoaded && !timedOut;
+  const isUserAuthenticated = isAuthenticated || isSignedIn;
   const scrolled = useScrollTop(10);
+
   return (
     <div
       className={cn(
@@ -36,7 +39,8 @@ export const Navbar = () => {
       <Logo />
       <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
         {isLoading && <Spinner />}
-        {!isLoading && !isAuthenticated && (
+
+        {!isLoading && !isUserAuthenticated && (
           <Fragment>
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">
@@ -48,14 +52,16 @@ export const Navbar = () => {
             </SignInButton>
           </Fragment>
         )}
-        {isAuthenticated && !isLoading && (
+
+        {isUserAuthenticated && !isLoading && (
           <Fragment>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/canvas">Get Started</Link>
+              <Link href="/canvas">Enter Canvas</Link>
             </Button>
             <UserButton afterSignOutUrl="/" />
           </Fragment>
         )}
+
         <ModeToggle />
       </div>
     </div>
