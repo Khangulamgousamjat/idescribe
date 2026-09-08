@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 
@@ -18,6 +18,7 @@ import {
   ChevronRight,
   LucideIcon,
   MoreHorizontal,
+  Pencil,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -73,6 +74,49 @@ const Item: ItemComponent = ({
   const params = useParams();
   const create = useMutation(api.canvas.create);
   const archive = useMutation(api.canvas.archive);
+  const update = useMutation(api.canvas.update);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(label);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setTitle(label);
+  }, [label]);
+
+  const onStartRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!id) return;
+    setIsEditing(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 0);
+  };
+
+  const onSaveRename = () => {
+    setIsEditing(false);
+    if (!id) return;
+    const trimmed = title.trim();
+    if (!trimmed) {
+      setTitle(label || "Untitled Canvas");
+      return;
+    }
+    if (trimmed !== label) {
+      update({ id, title: trimmed });
+      toast.success("Canvas renamed!");
+    }
+  };
+
+  const onKeyDownRename = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onSaveRename();
+    } else if (e.key === "Escape") {
+      setTitle(label);
+      setIsEditing(false);
+    }
+  };
 
   const onArchive = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
@@ -154,7 +198,30 @@ const Item: ItemComponent = ({
       ) : (
         <Icon className="h-[18px] w-[18px] mr-2 shrink-0 text-muted-foreground" />
       )}
-      <span className="truncate">{label}</span>
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          value={title}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={onKeyDownRename}
+          onBlur={onSaveRename}
+          className="text-sm bg-secondary/90 border border-primary/40 rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-primary text-foreground w-full mr-2"
+        />
+      ) : (
+        <span
+          onDoubleClick={(e) => {
+            if (id) {
+              e.stopPropagation();
+              onStartRename(e);
+            }
+          }}
+          className="truncate"
+          title={id ? "Double click to rename" : undefined}
+        >
+          {label}
+        </span>
+      )}
       {isSearch && (
         <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
           <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span> +{" "}
@@ -184,7 +251,11 @@ const Item: ItemComponent = ({
               side="right"
               forceMount
             >
-              <DropdownMenuItem onClick={onArchive}>
+              <DropdownMenuItem onClick={onStartRename} className="cursor-pointer">
+                <Pencil className="h-4 w-4 mr-2" />
+                Rename
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onArchive} className="cursor-pointer">
                 <Trash2 className="h-4 w-4 mr-2 text-red-500" />
                 Delete
               </DropdownMenuItem>

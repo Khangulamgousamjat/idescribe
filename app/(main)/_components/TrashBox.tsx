@@ -10,6 +10,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Spinner } from "@/components/spinner";
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
 
@@ -30,8 +31,21 @@ export const TrashBox = () => {
   const canvas = useQuery(api.canvas.getTrash);
   const restore = useMutation(api.canvas.restore);
   const remove = useMutation(api.canvas.remove);
+  const removeAllTrash = useMutation(api.canvas.removeAllTrash);
 
   const [search, setSearch] = useState("");
+
+  const onRemoveAll = () => {
+    const promise = removeAllTrash();
+
+    toast.promise(promise, {
+      loading: "Deleting all canvases from trash...",
+      success: "All canvases permanently deleted!",
+      error: "Failed to delete canvases.",
+    });
+
+    router.push("/canvas");
+  };
 
   const filteredCanvas = canvas?.filter((c) => {
     return c.title.toLowerCase().includes(search.toLowerCase());
@@ -91,7 +105,7 @@ export const TrashBox = () => {
     }
   };
 
-  if (document === undefined) {
+  if (canvas === undefined) {
     return (
       <div className="h-full flex items-center justify-center p-4">
         <Spinner size="lg" />
@@ -110,6 +124,23 @@ export const TrashBox = () => {
           placeholder="Filter by page title"
         />
       </div>
+      {canvas && canvas.length > 0 && (
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/50 bg-secondary/30">
+          <span className="text-xs text-muted-foreground font-medium">
+            {canvas.length} {canvas.length === 1 ? "canvas" : "canvases"} in trash
+          </span>
+          <ConfirmModal onConfirm={onRemoveAll}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-red-500 hover:text-red-600 hover:bg-red-500/10 cursor-pointer font-medium"
+            >
+              <Trash2 className="h-3.5 w-3.5 mr-1 text-red-500" />
+              Delete all
+            </Button>
+          </ConfirmModal>
+        </div>
+      )}
       <div className="mt-2 px-1 pb-1">
         <p className="hidden last:block text-xs text-center text-muted-foreground pb-2">
           No canvas found

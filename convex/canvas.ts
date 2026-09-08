@@ -149,6 +149,27 @@ export const remove = mutation({
   },
 });
 
+export const removeAllTrash = mutation({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const userId = identity.subject;
+
+    const trashedCanvases = await ctx.db
+      .query("canvas")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("isArchived"), true))
+      .collect();
+
+    await Promise.all(
+      trashedCanvases.map((canvas) => ctx.db.delete(canvas._id))
+    );
+
+    return trashedCanvases;
+  },
+});
+
 export const getSearch = query({
   handler: async (context) => {
     const identity = await context.auth.getUserIdentity();

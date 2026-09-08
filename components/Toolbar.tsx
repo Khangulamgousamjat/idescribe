@@ -1,4 +1,4 @@
-import { useRef, useState, ElementRef } from "react";
+import { useRef, useState, useEffect, ElementRef } from "react";
 import { useMutation } from "convex/react";
 import TextareaAutosize from "react-textarea-autosize";
 
@@ -29,6 +29,12 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
 
   const coverImage = useCoverImage();
 
+  useEffect(() => {
+    if (!isEditing) {
+      setValue(initialData.title);
+    }
+  }, [initialData.title, isEditing]);
+
   const enableInput = () => {
     if (preview) return;
 
@@ -36,16 +42,27 @@ export const Toolbar = ({ initialData, preview }: ToolbarProps) => {
     setTimeout(() => {
       setValue(initialData.title);
       inputRef.current?.focus();
+      inputRef.current?.select();
     }, 0);
   };
 
-  const disableInput = () => setIsEditing(false);
+  const disableInput = () => {
+    setIsEditing(false);
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setValue("Untitled Canvas");
+      update({
+        id: initialData._id,
+        title: "Untitled Canvas",
+      });
+    }
+  };
 
   const onInput = (value: string) => {
     setValue(value);
     update({
       id: initialData._id,
-      title: value || "Untitled",
+      title: value || "Untitled Canvas",
     });
   };
 
