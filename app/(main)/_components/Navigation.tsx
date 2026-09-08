@@ -41,7 +41,6 @@ import { Item } from "./Item";
 import { CanvasList } from "./CanvasList";
 import { TrashBox } from "./TrashBox";
 import { Navbar } from "./Navbar";
-import { OwnerBadge } from "@/components/OwnerBadge";
 
 export const Navigation = () => {
   const search = useSearch();
@@ -202,9 +201,6 @@ export const Navigation = () => {
           </Popover>
         </div>
 
-        <div className="mt-auto pb-4 pt-2 flex justify-center">
-          <OwnerBadge size="sm" showRole />
-        </div>
 
         <div
           onMouseDown={handleMouseDown}
