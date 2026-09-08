@@ -2,26 +2,13 @@
 
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
-import { SignInButton, useAuth } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
 import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export const Heading = () => {
-  const { isAuthenticated, isLoading: convexLoading } = useConvexAuth();
-  const { isSignedIn, isLoaded: clerkLoaded } = useAuth();
-  const [timedOut, setTimedOut] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTimedOut(true);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const isLoading = convexLoading && !clerkLoaded && !timedOut;
-  const isUserAuthenticated = isAuthenticated || isSignedIn;
+  const { isAuthenticated, isLoading } = useConvexAuth();
 
   return (
     <div className="max-w-3xl space-y-4 text-center">
@@ -41,7 +28,7 @@ export const Heading = () => {
         </div>
       )}
 
-      {isUserAuthenticated && !isLoading && (
+      {isAuthenticated && !isLoading && (
         <Button asChild size="lg" className="font-semibold shadow-md">
           <Link href="/canvas">
             Enter Canvas
@@ -50,7 +37,7 @@ export const Heading = () => {
         </Button>
       )}
 
-      {!isUserAuthenticated && !isLoading && (
+      {!isAuthenticated && !isLoading && (
         <SignInButton mode="modal">
           <Button size="lg" className="font-semibold shadow-md">
             Get Started

@@ -1,10 +1,10 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import Link from "next/link";
 
 import { useConvexAuth } from "convex/react";
-import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
+import { SignInButton, UserButton } from "@clerk/nextjs";
 
 import { useScrollTop } from "@/hook/useScrollTop";
 import { cn } from "@/lib/utils";
@@ -14,19 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 
 export const Navbar = () => {
-  const { isAuthenticated, isLoading: convexLoading } = useConvexAuth();
-  const { isSignedIn, isLoaded: clerkLoaded } = useAuth();
-  const [timedOut, setTimedOut] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTimedOut(true);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const isLoading = convexLoading && !clerkLoaded && !timedOut;
-  const isUserAuthenticated = isAuthenticated || isSignedIn;
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const scrolled = useScrollTop(10);
 
   return (
@@ -40,7 +28,7 @@ export const Navbar = () => {
       <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
         {isLoading && <Spinner />}
 
-        {!isLoading && !isUserAuthenticated && (
+        {!isLoading && !isAuthenticated && (
           <Fragment>
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">
@@ -53,7 +41,7 @@ export const Navbar = () => {
           </Fragment>
         )}
 
-        {isUserAuthenticated && !isLoading && (
+        {isAuthenticated && !isLoading && (
           <Fragment>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/canvas">Enter Canvas</Link>
