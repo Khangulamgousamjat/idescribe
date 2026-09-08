@@ -73,7 +73,7 @@ export const CanvasList = ({ parentCanvasId, level = 0 }: CanvasListProps) => {
             label={c.title || "Untitled"}
             icon={FileText}
             canvasIcon={c.icon}
-            active={params.canvasId === c._id}
+            active={params.canvasID === c._id}
             level={level}
             onExpand={() => onExpand(c._id)}
             expanded={expanded[c._id]}

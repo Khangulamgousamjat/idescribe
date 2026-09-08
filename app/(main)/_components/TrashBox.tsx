@@ -86,7 +86,7 @@ export const TrashBox = () => {
         ],
     });
 
-    if (params.id === id) {
+    if (params.canvasID === id) {
       router.push("/canvas");
     }
   };

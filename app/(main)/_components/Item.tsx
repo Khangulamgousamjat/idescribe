@@ -1,7 +1,7 @@
 "use client";
 
 import React, { FC } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 
 import { toast } from "sonner";
@@ -70,6 +70,7 @@ const Item: ItemComponent = ({
 }) => {
   const user = useUser();
   const router = useRouter();
+  const params = useParams();
   const create = useMutation(api.canvas.create);
   const archive = useMutation(api.canvas.archive);
 
@@ -77,7 +78,7 @@ const Item: ItemComponent = ({
     e.stopPropagation();
     if (!id) return;
 
-    const promise = archive({ id }).then((id) => router.push(`/canvas/${id}`));
+    const promise = archive({ id });
 
     toast.promise(promise, {
       loading:
@@ -93,6 +94,10 @@ const Item: ItemComponent = ({
           Math.floor(Math.random() * toastMsgDeleteError.length)
         ],
     });
+
+    if (params.canvasID === id) {
+      router.push("/canvas");
+    }
   };
 
   const handleExpand = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
