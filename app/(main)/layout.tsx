@@ -1,7 +1,6 @@
 "use client";
 
 import { useConvexAuth } from "convex/react";
-import { useAuth } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 import { Navigation } from "./_components/Navigation";
@@ -10,9 +9,8 @@ import { SearchCommand } from "@/components/searchCommand";
 
 const CanvasLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useConvexAuth();
-  const { isSignedIn, isLoaded } = useAuth();
 
-  if (isLoading && !isLoaded) {
+  if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <Spinner size="lg" />
@@ -20,7 +18,7 @@ const CanvasLayout = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!isAuthenticated && !isSignedIn) {
+  if (!isAuthenticated) {
     return redirect("/");
   }
 
